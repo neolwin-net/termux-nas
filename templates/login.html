@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Administrator Login · Vivo Y28 NAS{% endblock %}
+{% block content %}
+<section class="login-wrap">
+  <div class="panel login-panel">
+    <div class="eyebrow">PRIVATE STORAGE SERVER</div>
+    <h1>Welcome back.</h1>
+    <p class="muted">Sign in to manage your local storage.</p>
+    <form method="POST" action="{{ url_for('login') }}" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Administrator username
+        <input name="username" type="text" autocomplete="username" required autofocus>
+      </label>
+      <label>Password
+        <input name="password" type="password" autocomplete="current-password" required>
+      </label>
+      <button class="primary" type="submit">Sign in</button>
+    </form>
+    <p class="hint">LAN access only. Do not expose this service to the public internet.</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}{{ 'NAS' if storage == 'nas' else 'Android' }} Files · Vivo Y28 NAS{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><div class="eyebrow">FILE MANAGER / {{ storage|upper }}</div>
+    <h1>{{ 'NAS Storage' if storage == 'nas' else 'Android Shared Storage' }}</h1>
+    <p class="muted">Current folder: /{{ current_path }}</p>
+  </div>
+  <a class="secondary button-link" href="{{ url_for('dashboard') }}">← Dashboard</a>
+</div>
+
+<section class="panel toolbar">
+  <form method="get" action="{{ url_for('files', storage=storage) }}" class="search-form">
+    <input type="hidden" name="path" value="{{ current_path }}">
+    <input type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="Search this folder by name">
+    <button class="secondary" type="submit">Search</button>
+    {% if request.args.get('q') %}<a class="clear-link" href="{{ url_for('files', storage=storage, path=current_path) }}">Clear</a>{% endif %}
+  </form>
+  <div class="actions">
+    <form method="post" action="{{ url_for('mkdir', storage=storage) }}" class="compact-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="path" value="{{ current_path }}">
+      <input name="folder_name" placeholder="New folder name" required>
+      <button class="secondary" type="submit">Create folder</button>
+    </form>
+    <form method="post" action="{{ url_for('upload', storage=storage) }}" enctype="multipart/form-data" class="compact-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="path" value="{{ current_path }}">
+      <input type="file" name="files" multiple required>
+      <button class="primary" type="submit">Upload files</button>
+    </form>
+  </div>
+</section>
+
+<section class="panel table-panel">
+  <div class="table-heading"><h2>Contents</h2><span class="muted">{{ entries|length }} item(s)</span></div>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Name</th><th>Type</th><th>Size</th><th class="right">Actions</th></tr></thead>
+    <tbody>
+    {% if current_path %}
+      <tr><td colspan="4"><a class="folder-link" href="{{ url_for('files', storage=storage, path=parent_path) }}">↰ .. (Parent folder)</a></td></tr>
+    {% endif %}
+    {% for item in entries %}
+      {% if not request.args.get('q') or request.args.get('q', '').lower() in item.name.lower() %}
+      {% set item_path = (current_path ~ '/' if current_path else '') ~ item.name %}
+      <tr>
+        <td>
+          {% if item.is_dir %}
+            <a class="folder-link" href="{{ url_for('files', storage=storage, path=item_path) }}">📁 {{ item.name }}</a>
+          {% else %}<span>▤ {{ item.name }}</span>{% endif %}
+        </td>
+        <td>{{ 'Folder' if item.is_dir else 'File' }}</td>
+        <td>{{ item.size }}</td>
+        <td class="right">
+          {% if not item.is_dir %}<a class="action-link" href="{{ url_for('download', storage=storage, path=item_path) }}">Download</a>{% endif %}
+          <details class="row-menu">
+            <summary>Manage</summary>
+            <form method="post" action="{{ url_for('rename', storage=storage) }}" class="menu-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="path" value="{{ item_path }}">
+              <input name="new_name" placeholder="New name" required>
+              <button class="secondary small" type="submit">Rename</button>
+            </form>
+            <form method="post" action="{{ url_for('delete', storage=storage) }}" class="menu-form" onsubmit="return confirm('Delete this item? Non-empty folders cannot be deleted.');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="path" value="{{ item_path }}">
+              <button class="danger small" type="submit">Delete</button>
+            </form>
+          </details>
+        </td>
+      </tr>
+      {% endif %}
+    {% else %}
+      <tr><td colspan="4" class="empty">This folder is empty.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endblock %}

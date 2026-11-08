@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Vivo Y28 NAS{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><div class="eyebrow">OVERVIEW</div><h1>Storage dashboard</h1>
+  <p class="muted">Your local storage at a glance.</p></div>
+  <span class="status"><i></i> Server interface</span>
+</div>
+
+<section class="grid two">
+  <article class="panel storage-card">
+    <div class="card-top"><span class="eyebrow">PRIVATE NAS FOLDER</span><span class="tag">NAS</span></div>
+    <h2>NAS Storage</h2>
+    <div class="big-number">{{ format_size(nas.used) }}</div>
+    <p class="muted">Used of {{ format_size(nas.total) }}</p>
+    <div class="progress"><span style="width: {{ (nas.used / nas.total * 100) if nas.total else 0 }}%"></span></div>
+    <div class="stats"><span>Free <b>{{ format_size(nas.free) }}</b></span><span>Used <b>{{ "%.1f"|format((nas.used / nas.total * 100) if nas.total else 0) }}%</b></span></div>
+    <a class="primary button-link" href="{{ url_for('files', storage='nas') }}">Open NAS files</a>
+  </article>
+
+  <article class="panel storage-card">
+    <div class="card-top"><span class="eyebrow">ANDROID SHARED STORAGE</span><span class="tag">ANDROID</span></div>
+    <h2>Phone Storage</h2>
+    {% if android %}
+      <div class="big-number">{{ format_size(android.used) }}</div>
+      <p class="muted">Used of {{ format_size(android.total) }}</p>
+      <div class="progress"><span style="width: {{ (android.used / android.total * 100) if android.total else 0 }}%"></span></div>
+      <div class="stats"><span>Free <b>{{ format_size(android.free) }}</b></span><span>Used <b>{{ "%.1f"|format((android.used / android.total * 100) if android.total else 0) }}%</b></span></div>
+      <a class="primary button-link" href="{{ url_for('files', storage='android') }}">Browse phone files</a>
+    {% else %}
+      <p class="muted">Android shared storage is unavailable. Run termux-setup-storage and grant permission.</p>
+    {% endif %}
+  </article>
+</section>
+
+<section class="panel quick-panel">
+  <div><div class="eyebrow">QUICK ACCESS</div><h2>Manage your files</h2><p class="muted">Upload, download, organize, rename, and search files.</p></div>
+  <div class="quick-links">
+    <a href="{{ url_for('files', storage='nas') }}">NAS file manager →</a>
+    <a href="{{ url_for('files', storage='android') }}">Android file manager →</a>
+  </div>
+</section>
+{% endblock %}

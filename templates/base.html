@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Vivo Y28 NAS{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+{% if session.get("authenticated") %}
+<header class="topbar">
+  <a class="brand" href="{{ url_for('dashboard') }}">VIVO Y28 <span>NAS</span></a>
+  <nav>
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('files', storage='nas') }}">NAS Storage</a>
+    <a href="{{ url_for('files', storage='android') }}">Android Storage</a>
+    <form class="inline-form" method="post" action="{{ url_for('logout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="nav-button" type="submit">Log out</button>
+    </form>
+  </nav>
+</header>
+{% endif %}
+<main class="container">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <section class="messages">
+      {% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}
+      </section>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer>Private local network storage · Vivo Y28</footer>
+</body>
+</html>
