@@ -1,0 +1,23 @@
+# Passwords and environment variables
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Sensitive files
+*.pem
+*.key
+id_rsa
+id_ed25519
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+.DS_Store
